@@ -8,6 +8,12 @@ import com.inhouse.archive.handle_files.helper.StringWrapper;
 import com.inhouse.archive.handle_files.service.ReadFileService;
 import com.inhouse.archive.handle_files.service.ReadFileProcessor;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Collections;
+
 @SpringBootApplication
 public class HandleFilesApplication {
 
@@ -21,13 +27,34 @@ public class HandleFilesApplication {
         // Get the bean
         ReadFileService readFile = context.getBean(ReadFileService.class);
 
-		String fileName = "input1.txt";// = "D:\\repos\\handle-files\\inputs\\input1.txt"; // Path to your file
+		String fileName = "input1.txt";
+		
 		ReadFileProcessor readFileProcessor =  readFile.getFileProcessor(fileName);
 
 		StringWrapper lineString = new StringWrapper();
-		while (readFileProcessor.readNext(lineString)) {
-			System.out.println(lineString);
+        String outputFile = "D:\\repos\\handle-files\\outputs\\output.txt"; // = "output.txt";
+        // Clear the output file at the start (optional)
+        try {
+			Files.write(Paths.get(outputFile), new byte[0], StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-	
+
+		System.out.println("START PROCESSING FILE: " + fileName);
+        while (readFileProcessor.readNext(lineString)) {
+            try {
+				Files.write(
+				    Paths.get(outputFile),
+				    Collections.singletonList(lineString.toString() + " : thread " + Thread.currentThread().getName()),
+				    StandardOpenOption.CREATE,
+				    StandardOpenOption.APPEND
+				);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+		System.out.println("FINISHING PROCESSING FILE: " + fileName);	
 	}
 }
