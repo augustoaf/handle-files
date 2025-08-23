@@ -6,11 +6,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReadFileService {
 
-    @Value("${input.file.base.path}")
-    private String basePath;
+    @Value("${input.file.base.path.input}")
+    private String basePathInput;
 
-    // factory
+    @Value("${input.file.base.path.output}")
+    private String basePathOutput;
+
+    // factory for reading files
     public ReadFileProcessor getFileProcessor(String fileName) {
-        return new ReadFileProcessor(basePath + "\\" + fileName);
+        return new ReadFileProcessor(basePathInput + "\\" + fileName);
+    }
+
+    // factory for writing files
+    public WriteFileProcessor getWriteFileProcessor(String fileName) {
+        return new WriteFileProcessor(basePathOutput + "\\" + fileName);
     }
 }
