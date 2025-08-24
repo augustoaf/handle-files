@@ -4,12 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
-import com.inhouse.archive.handle_files.helper.StringWrapper;
+import com.inhouse.archive.handle_files.helper.ReadAndWrite;
 import com.inhouse.archive.handle_files.service.ReadFileService;
-import com.inhouse.archive.handle_files.service.WriteFileProcessor;
-import com.inhouse.archive.handle_files.service.ReadFileProcessor;
-
-import java.io.IOException;
 
 @SpringBootApplication
 public class HandleFilesApplication {
@@ -22,24 +18,18 @@ public class HandleFilesApplication {
         ApplicationContext context = SpringApplication.run(HandleFilesApplication.class, args);
 
         // Get the bean
-        ReadFileService readFile = context.getBean(ReadFileService.class);
-
-		String fileName = "input1.txt";
+        ReadFileService readFileService = context.getBean(ReadFileService.class);		
 		
-		ReadFileProcessor readFileProcessor =  readFile.getFileProcessor(fileName);
-		WriteFileProcessor writeFileProcessor = readFile.getWriteFileProcessor("output.txt");
+		// TODO: apply thread safe write to file, next a distributed lock
+		// using Redis to prevent N instances running in different nodes
+		// which can lead to race conditions as well  
 
-		StringWrapper lineString = new StringWrapper();
+		ReadAndWrite readAndWrite1 = new ReadAndWrite("input1.txt", readFileService);
+		ReadAndWrite readAndWrite2 = new ReadAndWrite("input2.txt", readFileService);
+		Thread thread1 = new Thread(readAndWrite1);
+		Thread thread2 = new Thread(readAndWrite2);
 
-		System.out.println("START PROCESSING FILE: " + fileName);
-        while (readFileProcessor.readNext(lineString)) {
-            try {
-				writeFileProcessor.writeLine(lineString.getValue());
-			} catch (IOException e) {
-				System.out.println("ERROR writing to file: " + e.getMessage());
-				e.printStackTrace();
-			}
-        }
-		System.out.println("FINISHING PROCESSING FILE: " + fileName);	
-	}
+		thread1.start();
+		thread2.start();
+	}	
 }
