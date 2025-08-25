@@ -14,6 +14,7 @@ public class WriteFileProcessor {
 
     private final String filePath;
     private final RedissonClient redissonClient;
+    private int count = 0;
 
     //need to be a static variable to log only once, 
     //otherwise the N instance of this class will handle this distinctly,
@@ -29,9 +30,9 @@ public class WriteFileProcessor {
     }
 
     public void writeLine(String line) throws IOException {
-        writeLineWithDistributedLock(line);
+        //writeLineWithDistributedLock(line);
         //writeLineWithThreadSafe(line);
-        //writeLineWithoutLock(line);
+        writeLineWithoutLock(line);
     }
 
     public void writeLineWithoutLock(String line) throws IOException {
@@ -41,22 +42,14 @@ public class WriteFileProcessor {
             LOG_ONCE = true;
         }
 
+        int counter = ++count;
+
         Files.write(
             Paths.get(filePath),
-            java.util.Collections.singletonList(line + " : " + LocalDateTime.now() + " : " + Thread.currentThread().getName()),
+            java.util.Collections.singletonList(line + " : " + LocalDateTime.now() + " : " + Thread.currentThread().getName() + " : count " + counter),
             StandardOpenOption.CREATE,
             StandardOpenOption.APPEND
         );
-            
-        /*
-        try {
-            // TO DO is it needed for simulation of race conditions?
-            Thread.sleep(10);// Simulate some processing time
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new IOException("Interrupted exception.", e);
-        } 
-        */
     }
 
     public void writeLineWithThreadSafe(String line) throws IOException {
@@ -68,9 +61,11 @@ public class WriteFileProcessor {
                 LOG_ONCE = true;
             }
 
+            int counter = ++count;
+
             Files.write(
                 Paths.get(filePath),
-                java.util.Collections.singletonList(line + " : " + LocalDateTime.now() + " : " + Thread.currentThread().getName()),
+                java.util.Collections.singletonList(line + " : " + LocalDateTime.now() + " : " + Thread.currentThread().getName() + " : count " + counter),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.APPEND
             );
@@ -95,10 +90,12 @@ public class WriteFileProcessor {
                     LOG_ONCE = true;
                 }
 
+                int counter = ++count;
+
                 try {
                     Files.write(
                         Paths.get(filePath),
-                        java.util.Collections.singletonList(line + " : " + LocalDateTime.now() + " : " + Thread.currentThread().getName()),
+                        java.util.Collections.singletonList(line + " : " + LocalDateTime.now() + " : " + Thread.currentThread().getName() + " : count " + counter),
                         StandardOpenOption.CREATE,
                         StandardOpenOption.APPEND
                     );
@@ -121,7 +118,6 @@ public class WriteFileProcessor {
         try {
             Files.write(Paths.get(filePath), new byte[0], StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

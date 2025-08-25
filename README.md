@@ -8,6 +8,15 @@ This project is designed to **simulate IO race conditions** that can occur when 
 - How to apply **thread-safe solutions** (such as Java synchronization) to prevent conflicts within a single JVM.
 - How to use a **distributed lock** (e.g., with Redis) to coordinate file access across multiple instances or nodes.
 
+## Important
+
+In the writeLineWithoutLock method, the race condition may manifest as both inconsistent file output (potentially corrupted lines or incorrect line counts) and likely an incorrect final value for the shared counter. This inconsistency confirms that multiple threads are competing for and corrupting a shared resource. 
+Note: may be hard to simulate IO write race condition, but the counter will likely be affected more easily. 
+
+Conversely, the writeLineWithThreadSafe and writeLineWithDistributedLock methods, which uses a mechanism lock, guarantees that the counter will reach the exact number of lines processed and that the output file will be consistently written without corruption. The lock ensures that the IO operations are performed atomically.
+
+It's important to note that even with the lock, there is no guaranteed processing order for the lines from input1.txt. Since threads 1A and 1B share the same ReadAndWrite instance, they will compete for input, leading to a non-deterministic order of lines being written to the output file. The lock only guarantees the integrity of the writes, not their sequencing.
+
 ## Features
 
 - Reads from multiple input files using separate threads.
@@ -19,11 +28,15 @@ This project is designed to **simulate IO race conditions** that can occur when 
 ## Usage
 
 1. **Simulate Race Condition:**  
-   Run the application as-is to observe possible file write conflicts.
-2. **Apply Thread-Safe Solution:**  
+   Run the application using writeLineWithoutLock to observe possible file write conflicts.
+2. **Simulate Thread-Safe Solution:**  
    Use Java synchronization to prevent concurrent writes within a single JVM.
-3. **Apply Distributed Lock:**  
+   example in writeLineWithThreadSafe
+3. **Simulate Distributed Lock:**  
    Integrate Redis-based distributed locking to coordinate writes across multiple instances.
+   example in writeLineWithDistributedLock
+
+Note: change the simulation on writeLine method inside the WriteFileProcessor class.
 
 ## Requirements
 

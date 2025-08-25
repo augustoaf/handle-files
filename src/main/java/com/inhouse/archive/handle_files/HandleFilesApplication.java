@@ -21,21 +21,23 @@ public class HandleFilesApplication {
         // Get the bean
         ReadFileService readFileService = context.getBean(ReadFileService.class);		
 		
+		//threads 1A and 1B have the same ReadAndWrite instance, so they will read the same file only once, but each thread will read a distinct line
 		ReadAndWrite readAndWrite1 = new ReadAndWrite("input1.txt", readFileService);
-		ReadAndWrite readAndWrite2 = new ReadAndWrite("input2.txt", readFileService);
-		Thread thread1 = new Thread(readAndWrite1);
-		Thread thread3 = new Thread(readAndWrite2);
-		Thread thread2 = new Thread(readAndWrite1);
-
-		thread1.start();
-		thread2.start();
-		thread3.start();
+		Thread thread1A = new Thread(readAndWrite1,"Thread-1A");
+		Thread thread1B = new Thread(readAndWrite1,"Thread-1B");
 		
+		ReadAndWrite readAndWrite2 = new ReadAndWrite("input2.txt", readFileService);
+		Thread thread2 = new Thread(readAndWrite2,"Thread-2");
+		
+		thread1A.start();
+		thread1B.start();
+		thread2.start();
+
 		//using join() means this 'main' thread will wait all other threads to finish before proceeding
 		//this is needed to release resources like RedissonClient
-		thread1.join();
+		thread1A.join();
+		thread1B.join();
 		thread2.join();
-		thread3.join();
 		
 		// Redis client need to shutdown, otherwise it will keep the main thread hang
         RedissonClient redissonClient = context.getBean(RedissonClient.class);

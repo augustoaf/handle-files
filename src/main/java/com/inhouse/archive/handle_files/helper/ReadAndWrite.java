@@ -38,7 +38,8 @@ public class ReadAndWrite implements Runnable {
         while (readFileProcessor.readNext(lineString)) {
             try {
 				writeFileProcessor.writeLine(lineString.getValue());
-			} catch (IOException e) {
+                //Thread.sleep(1);//try to force a race condition
+			} catch (Exception e) {
 				System.out.println("ERROR writing to file: " + e.getMessage());
 				try {
 					writeFileError.writeLine(Thread.currentThread().getName() + " : " + LocalDateTime.now().toString() + " : " + e.getMessage());
