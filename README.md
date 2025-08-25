@@ -15,7 +15,7 @@ Note: may be hard to simulate IO write race condition, but the amount of lines a
 
 Conversely, the writeLineWithThreadSafe and writeLineWithDistributedLock methods, which uses a mechanism lock, guarantees that the counter will reach the exact number of lines processed and that the output file will be consistently written without corruption. The lock ensures that the IO operations are performed atomically.
 
-It's important to note that even with the lock, there is no guaranteed processing order for the lines from input1.txt. Since threads 1A and 1B share the same ReadAndWrite instance, they will compete for input, leading to a non-deterministic order of lines being written to the output file. The lock only guarantees the integrity of the writes, not their sequencing.
+It's important to note that even with the lock, there is no guaranteed processing order for the lines from input1.txt when the same 'Read' object shared among N threads. E.g., Threads 1A and 1B share the same ReadAndWrite instance, they will compete for input, leading to a non-deterministic order of lines being written to the output file. The lock only guarantees the integrity of the writes, not their sequencing.
 
 ## Features
 
