@@ -1,3 +1,4 @@
+# PowerShell script to create a text file with 50k lines.
 # Define the number of lines to be generated.
 $numLines = 50000
 
