@@ -3,10 +3,10 @@ package com.inhouse.archive.handle_files.service;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-public class ReadFileService {
+@Component
+public class FileProcessorFactory {
 
     @Value("${input.file.base.path.input}")
     private String basePathInput;
@@ -17,7 +17,7 @@ public class ReadFileService {
     private final RedissonClient redissonClient;
     
     @Autowired
-    public ReadFileService(RedissonClient redissonClient) {
+    public FileProcessorFactory(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 

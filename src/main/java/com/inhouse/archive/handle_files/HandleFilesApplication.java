@@ -5,36 +5,37 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
-import com.inhouse.archive.handle_files.helper.ReadAndWrite;
-import com.inhouse.archive.handle_files.service.ReadFileService;
+import com.inhouse.archive.handle_files.service.FileProcessorFactory;
+import com.inhouse.archive.handle_files.service.ReadAndWriteService;
 
 @SpringBootApplication
 public class HandleFilesApplication {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		// When the main method is executed, it runs before Spring has a chance to initialize
-		// the application context and perform dependency injection, then you need to
-		// run the Spring Boot application and get the ApplicationContext 
+		// When this main method is executed, it runs before Spring initialize
+		// the application context and perform dependency injection, then you can 
+		// run the Spring Boot application manually to get access to the Beans 
         ApplicationContext context = SpringApplication.run(HandleFilesApplication.class, args);
 
-        // Get the bean
-        ReadFileService readFileService = context.getBean(ReadFileService.class);		
+        // Get the FileProcessorFactory bean
+        FileProcessorFactory fileProcessorFactory = context.getBean(FileProcessorFactory.class);		
 		
-		//threads 1A and 1B have the same ReadAndWrite instance, so they will read the same file only once, but each thread will read a distinct line
-		ReadAndWrite readAndWrite1 = new ReadAndWrite("input1.txt", readFileService);
+		// Threads 1A and 1B have access to the same ReadAndWrite instance, so they will compete to 
+		// read the same file, then the order is not guaranteed
+		ReadAndWriteService readAndWrite1 = new ReadAndWriteService("input1.txt", fileProcessorFactory);
 		Thread thread1A = new Thread(readAndWrite1,"Thread-1A");
 		Thread thread1B = new Thread(readAndWrite1,"Thread-1B");
 		
-		ReadAndWrite readAndWrite2 = new ReadAndWrite("input2.txt", readFileService);
+		ReadAndWriteService readAndWrite2 = new ReadAndWriteService("input2.txt", fileProcessorFactory);
 		Thread thread2 = new Thread(readAndWrite2,"Thread-2");
 		
 		thread1A.start();
 		thread1B.start();
 		thread2.start();
 
-		//using join() means this 'main' thread will wait all other threads to finish before proceeding
-		//this is needed to release resources like RedissonClient
+		// join() means this 'main' thread will wait all other threads to finish before proceeding
+		// this is needed to release resources like RedissonClient
 		thread1A.join();
 		thread1B.join();
 		thread2.join();

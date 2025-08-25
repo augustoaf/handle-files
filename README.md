@@ -11,7 +11,7 @@ This project is designed to **simulate IO race conditions** that can occur when 
 ## Important
 
 In the writeLineWithoutLock method, the race condition may manifest as both inconsistent file output (potentially corrupted lines or incorrect line counts) and likely an incorrect final value for the shared counter. This inconsistency confirms that multiple threads are competing for and corrupting a shared resource. 
-Note: may be hard to simulate IO write race condition, but the counter will likely be affected more easily. 
+Note: may be hard to simulate IO write race condition, but the amount of lines and the counter will likely be affected more easily. 
 
 Conversely, the writeLineWithThreadSafe and writeLineWithDistributedLock methods, which uses a mechanism lock, guarantees that the counter will reach the exact number of lines processed and that the output file will be consistently written without corruption. The lock ensures that the IO operations are performed atomically.
 

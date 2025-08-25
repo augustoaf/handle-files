@@ -1,40 +1,38 @@
-package com.inhouse.archive.handle_files.helper;
+package com.inhouse.archive.handle_files.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-import com.inhouse.archive.handle_files.service.ReadFileProcessor;
-import com.inhouse.archive.handle_files.service.ReadFileService;
-import com.inhouse.archive.handle_files.service.WriteFileProcessor;
+import com.inhouse.archive.handle_files.helper.StringWrapper;
 
-public class ReadAndWrite implements Runnable {
+public class ReadAndWriteService implements Runnable {
 
     private String fileName;
     private WriteFileProcessor writeFileProcessor;  
     private WriteFileProcessor writeFileError;
     private ReadFileProcessor readFileProcessor;
 
-    public ReadAndWrite(String fileName, ReadFileService readFileService) {
+    public ReadAndWriteService(String fileName, FileProcessorFactory fileProcessorFactory) {
         this.fileName = fileName;
         
         LocalTime currentTime = LocalTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
         String formattedTime = currentTime.format(formatter);
 
-        writeFileProcessor = readFileService.getWriteFileProcessor("output.txt");
-	    writeFileError = readFileService.getWriteFileProcessor("error_" + formattedTime + ".txt");
-        readFileProcessor =  readFileService.getFileProcessor(fileName);
+        writeFileProcessor = fileProcessorFactory.getWriteFileProcessor("output.txt");
+	    writeFileError = fileProcessorFactory.getWriteFileProcessor("error_" + formattedTime + ".txt");
+        readFileProcessor =  fileProcessorFactory.getFileProcessor(fileName);
     }
 
     @Override
     public void run() {
 		
 		StringWrapper lineString = new StringWrapper();
-
         LocalDateTime startTime = LocalDateTime.now();
-		System.out.println("START PROCESSING FILE: " + fileName + " : thread : " + Thread.currentThread().getName());
+
+        System.out.println("START PROCESSING FILE: " + fileName + " : thread : " + Thread.currentThread().getName());
         while (readFileProcessor.readNext(lineString)) {
             try {
 				writeFileProcessor.writeLine(lineString.getValue());

@@ -16,9 +16,7 @@ public class WriteFileProcessor {
     private final RedissonClient redissonClient;
     private int count = 0;
 
-    //need to be a static variable to log only once, 
-    //otherwise the N instance of this class will handle this distinctly,
-    // even the lock being in the class level 
+    // static variable to log only once a message, regardless how many instances of this class
     private static boolean LOG_ONCE = false;
     // A static, shared lock for all instances of the class 
     private static final Object FILE_LOCK = new Object();
@@ -54,6 +52,7 @@ public class WriteFileProcessor {
 
     public void writeLineWithThreadSafe(String line) throws IOException {
 
+        // TODO: improve this lock to consider the file name, otherwise it may lock threads to write to different files 
         synchronized(FILE_LOCK) {
 
             if (!LOG_ONCE) {
@@ -74,7 +73,8 @@ public class WriteFileProcessor {
      
     public void writeLineWithDistributedLock(String line) throws IOException {
 
-        RLock lock = redissonClient.getLock(filePath + "_lock");//use file path as lock due each WriteFileProcessor instance write to a different file
+        //use file path as lock due each WriteFileProcessor instance write to a different file
+        RLock lock = redissonClient.getLock(filePath + "_lock");
 
         try {
             // Try to acquire the lock with a maximum wait time of X seconds (1st parameter).
