@@ -7,6 +7,8 @@ import org.springframework.context.ApplicationContext;
 
 import com.inhouse.archive.handle_files.service.FileProcessorFactory;
 import com.inhouse.archive.handle_files.service.ReadAndWriteService;
+import com.inhouse.archive.handle_files.service.ReadFileProcessor;
+import com.inhouse.archive.handle_files.service.WriteFileProcessor;
 
 @SpringBootApplication
 public class HandleFilesApplication {
@@ -18,23 +20,29 @@ public class HandleFilesApplication {
 		// run the Spring Boot application manually to get access to the Beans 
         ApplicationContext context = SpringApplication.run(HandleFilesApplication.class, args);
 
-        // Get the FileProcessorFactory bean
+        // Get the FileProcessorFactory bean and instantiate shared output and error file processors
         FileProcessorFactory fileProcessorFactory = context.getBean(FileProcessorFactory.class);		
+		WriteFileProcessor writeOutput = fileProcessorFactory.getWriteFileProcessor("output.txt");
+		WriteFileProcessor writeError = fileProcessorFactory.getWriteFileProcessor("error.txt");	
 		
-		// Threads 1A and 1B have access to the same ReadAndWrite instance, so they will compete to 
-		// read the same file, then the order is not guaranteed 
+		// Threads 1A and 1B have access to the same ReadAndWrite instance (consequently same 
+		// ReadFileProcessor instance), so they will compete to read the same file, then the 
+		// order is not guaranteed 
 		// (analogy: it is like N consumers from same group reading from a Kafka topic w/out ordering)
-		ReadAndWriteService readAndWrite1 = new ReadAndWriteService("input1.txt", fileProcessorFactory);
+		ReadFileProcessor readInput1 = fileProcessorFactory.getReadFileProcessor("input1.txt");
+		ReadAndWriteService readAndWrite1 = new ReadAndWriteService(readInput1, writeOutput, writeError);
 		Thread thread1A = new Thread(readAndWrite1,"Thread-1A");
 		Thread thread1B = new Thread(readAndWrite1,"Thread-1B");
 		
 		// This thread although it is reading the same file as threads 1A and 1B, it has its own 
-		// ReadAndWrite instance, so it will read the file independently
+		// ReadFileProcessor instance, so it will read the file independently
 		// (analogy: it is like a different consumer group reading from same Kafka topic)
-		ReadAndWriteService readAndWrite2 = new ReadAndWriteService("input1.txt", fileProcessorFactory);
+		ReadFileProcessor readInput1Dedicated = fileProcessorFactory.getReadFileProcessor("input1.txt");
+		ReadAndWriteService readAndWrite2 = new ReadAndWriteService(readInput1Dedicated, writeOutput, writeError);
 		Thread thread2 = new Thread(readAndWrite2,"Thread-2");
 		
-		ReadAndWriteService readAndWrite3 = new ReadAndWriteService("input2.txt", fileProcessorFactory);
+		ReadFileProcessor readInput2 = fileProcessorFactory.getReadFileProcessor("input2.txt");
+		ReadAndWriteService readAndWrite3 = new ReadAndWriteService(readInput2, writeOutput, writeError);
 		Thread thread3 = new Thread(readAndWrite3,"Thread-3");
 		
 		thread1A.start();

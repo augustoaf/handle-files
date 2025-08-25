@@ -22,7 +22,7 @@ public class FileProcessorFactory {
     }
 
     // factory for reading files
-    public ReadFileProcessor getFileProcessor(String fileName) {
+    public ReadFileProcessor getReadFileProcessor(String fileName) {
         return new ReadFileProcessor(basePathInput + "\\" + fileName);
     }
 

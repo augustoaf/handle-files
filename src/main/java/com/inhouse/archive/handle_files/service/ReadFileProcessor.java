@@ -43,4 +43,8 @@ public class ReadFileProcessor {
             }
         }    
     }
+
+    public String getFileName() {
+        return Paths.get(this.filePath).getFileName().toString();
+    }
 }

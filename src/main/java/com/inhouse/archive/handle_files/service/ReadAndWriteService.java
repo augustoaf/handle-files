@@ -2,28 +2,21 @@ package com.inhouse.archive.handle_files.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
 import com.inhouse.archive.handle_files.helper.StringWrapper;
 
 public class ReadAndWriteService implements Runnable {
 
-    private String fileName;
+    private ReadFileProcessor readFileProcessor;
     private WriteFileProcessor writeFileProcessor;  
     private WriteFileProcessor writeFileError;
-    private ReadFileProcessor readFileProcessor;
 
-    public ReadAndWriteService(String fileName, FileProcessorFactory fileProcessorFactory) {
-        this.fileName = fileName;
-        
-        LocalTime currentTime = LocalTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
-        String formattedTime = currentTime.format(formatter);
+    public ReadAndWriteService(ReadFileProcessor readFileProcessor, 
+        WriteFileProcessor writeFileProcessor, WriteFileProcessor writeFileError) {
 
-        writeFileProcessor = fileProcessorFactory.getWriteFileProcessor("output.txt");
-	    writeFileError = fileProcessorFactory.getWriteFileProcessor("error_" + formattedTime + ".txt");
-        readFileProcessor =  fileProcessorFactory.getFileProcessor(fileName);
+        this.readFileProcessor = readFileProcessor;
+        this.writeFileProcessor = writeFileProcessor;
+        this.writeFileError = writeFileError;
     }
 
     @Override
@@ -32,7 +25,8 @@ public class ReadAndWriteService implements Runnable {
 		StringWrapper lineString = new StringWrapper();
         LocalDateTime startTime = LocalDateTime.now();
 
-        System.out.println("START PROCESSING FILE: " + fileName + " : thread : " + Thread.currentThread().getName());
+        System.out.println("START PROCESSING FILE: " + readFileProcessor.getFileName() 
+            + " : thread : " + Thread.currentThread().getName());
         while (readFileProcessor.readNext(lineString)) {
             try {
 				writeFileProcessor.writeLine(lineString.getValue());
@@ -46,7 +40,7 @@ public class ReadAndWriteService implements Runnable {
 				}
 			}
         }
-		System.out.println("FINISHING PROCESSING FILE: " + fileName 
+		System.out.println("FINISHING PROCESSING FILE: " + readFileProcessor.getFileName() 
             + " : thread : " + Thread.currentThread().getName() 
             + " : duration : " + java.time.Duration.between(startTime, LocalDateTime.now()).toSeconds() + " seconds");	
     }

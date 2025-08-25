@@ -16,11 +16,14 @@ public class WriteFileProcessor {
     private final RedissonClient redissonClient;
     private int count = 0;
 
-    // static variable to log only once a message, regardless how many instances of this class
-    private static boolean LOG_ONCE = false;
-    // A static, shared lock for all instances of this class 
-    // (static lock because all WriteFileProcessor instances write to the same output file)
-    private static final Object FILE_LOCK = new Object();
+    // variable to log only once a message
+    private boolean LOG_ONCE = false;
+    // A lock per instance level of this class 
+    // (guarantee a safe write per thread when multiple treads executing writeLine for same file 
+    //  from the same WriteFileProcessor instance)
+    // Note: this lock will not prevent IO race condition if multiple instances of WriteFileProcessor 
+    // write to the same file, then you need to use a static lock or a distributed lock
+    private final Object FILE_LOCK = new Object();
 
     public WriteFileProcessor(String filePath, RedissonClient redissonClient) {
         this.filePath = filePath;
@@ -53,7 +56,6 @@ public class WriteFileProcessor {
 
     public void writeLineWithThreadSafe(String line) throws IOException {
 
-        // TODO: improve this lock to consider the file name, otherwise it may lock threads to write to different files (like writes in error files and output files)
         synchronized(FILE_LOCK) {
 
             if (!LOG_ONCE) {
