@@ -2,6 +2,8 @@ package com.inhouse.archive.handle_files.helper;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 import com.inhouse.archive.handle_files.service.ReadFileProcessor;
 import com.inhouse.archive.handle_files.service.ReadFileService;
@@ -16,8 +18,13 @@ public class ReadAndWrite implements Runnable {
 
     public ReadAndWrite(String fileName, ReadFileService readFileService) {
         this.fileName = fileName;
+        
+        LocalTime currentTime = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
+        String formattedTime = currentTime.format(formatter);
+
         writeFileProcessor = readFileService.getWriteFileProcessor("output.txt");
-	    writeFileError = readFileService.getWriteFileProcessor("error.txt");
+	    writeFileError = readFileService.getWriteFileProcessor("error_" + formattedTime + ".txt");
         readFileProcessor =  readFileService.getFileProcessor(fileName);
     }
 
@@ -38,7 +45,6 @@ public class ReadAndWrite implements Runnable {
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				e.printStackTrace();
 			}
         }
 		System.out.println("FINISHING PROCESSING FILE: " + fileName 
