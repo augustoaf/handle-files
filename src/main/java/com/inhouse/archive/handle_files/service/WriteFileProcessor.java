@@ -18,7 +18,8 @@ public class WriteFileProcessor {
 
     // static variable to log only once a message, regardless how many instances of this class
     private static boolean LOG_ONCE = false;
-    // A static, shared lock for all instances of the class 
+    // A static, shared lock for all instances of this class 
+    // (static lock because all WriteFileProcessor instances write to the same output file)
     private static final Object FILE_LOCK = new Object();
 
     public WriteFileProcessor(String filePath, RedissonClient redissonClient) {
@@ -52,7 +53,7 @@ public class WriteFileProcessor {
 
     public void writeLineWithThreadSafe(String line) throws IOException {
 
-        // TODO: improve this lock to consider the file name, otherwise it may lock threads to write to different files 
+        // TODO: improve this lock to consider the file name, otherwise it may lock threads to write to different files (like writes in error files and output files)
         synchronized(FILE_LOCK) {
 
             if (!LOG_ONCE) {
