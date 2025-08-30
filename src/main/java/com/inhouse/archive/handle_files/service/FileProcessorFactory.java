@@ -21,9 +21,14 @@ public class FileProcessorFactory {
         this.redissonClient = redissonClient;
     }
 
-    // factory for reading files
+    // factory for reading files at once
     public ReadFileProcessor getReadFileProcessor(String fileName) {
         return new ReadFileProcessor(basePathInput + "\\" + fileName);
+    }
+
+    // factory for reading files in chunks
+    public ReadFileChunkProcessor getReadFileChunkProcessor(String filePath, long startByte, long endByte) {
+        return new ReadFileChunkProcessor(filePath, startByte, endByte);
     }
 
     // factory for writing files

@@ -10,6 +10,11 @@ import com.inhouse.archive.handle_files.service.ReadAndWriteService;
 import com.inhouse.archive.handle_files.service.ReadFileProcessor;
 import com.inhouse.archive.handle_files.service.WriteFileProcessor;
 
+/*	
+ * This is a Spring Boot application that demonstrates concurrent file reading and writing
+ * considering an input file at once as the unit of work.
+ */
+
 @SpringBootApplication
 public class HandleFilesApplication {
 

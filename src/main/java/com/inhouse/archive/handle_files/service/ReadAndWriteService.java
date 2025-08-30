@@ -7,11 +7,11 @@ import com.inhouse.archive.handle_files.helper.StringWrapper;
 
 public class ReadAndWriteService implements Runnable {
 
-    private ReadFileProcessor readFileProcessor;
+    private ReadFileAbstract readFileProcessor;
     private WriteFileProcessor writeFileProcessor;  
     private WriteFileProcessor writeFileError;
 
-    public ReadAndWriteService(ReadFileProcessor readFileProcessor, 
+    public ReadAndWriteService(ReadFileAbstract readFileProcessor, 
         WriteFileProcessor writeFileProcessor, WriteFileProcessor writeFileError) {
 
         this.readFileProcessor = readFileProcessor;
