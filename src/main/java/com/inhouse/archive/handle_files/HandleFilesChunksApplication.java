@@ -21,8 +21,7 @@ import com.inhouse.dto.FileChunkDTO;
 @SpringBootApplication
 public class HandleFilesChunksApplication {
 
-	// TODO: read from application.properties
-    private static final String CHUNKS_QUEUE = "file_chunks_queue";
+    private static String CHUNKS_QUEUE;
 		
     public static void main(String[] args) throws InterruptedException {
         
@@ -30,6 +29,9 @@ public class HandleFilesChunksApplication {
 		// the application context and perform dependency injection, then you can 
 		// run the Spring Boot application manually to get access to the Beans 
         ApplicationContext context = SpringApplication.run(HandleFilesChunksApplication.class, args);
+
+        // Read an application.properties property value
+        CHUNKS_QUEUE = context.getEnvironment().getProperty("file.chunks.queue.name");
 
         // Get the FileProcessorFactory bean and instantiate shared output and error file processors
         FileProcessorFactory fileProcessorFactory = context.getBean(FileProcessorFactory.class);		
@@ -40,11 +42,11 @@ public class HandleFilesChunksApplication {
         RedissonClient redissonClient = context.getBean(RedissonClient.class);
 
 		RBlockingQueue<FileChunkDTO> queue = redissonClient.getBlockingQueue(CHUNKS_QUEUE, new JsonJacksonCodec());
-		queue.clear();//for testing, clear the queue on each run
+		queue.clear();//for testing purpose to clear the queue on each run
         
-		System.out.println("Starting consumer loop...");
+		System.out.println("STARTING CONSUMER LOOP...");
 		
-		// loop to consume from a redis list - each item represents a file chunk
+		// loop to consume from a Redis List - each item represents a file chunk
 		while (true) {
 			FileChunkDTO chunk = queue.take(); // This will block until an item is available
 

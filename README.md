@@ -20,6 +20,7 @@ It's important to note that even with the lock, there is no guaranteed processin
 ## Features
 
 - Reads from multiple input files using separate threads.
+- Reads from multiple input files breakdown per chunks, having Redis Queue as source to trigger the processing.
 - Writes to a shared output file, exposing potential race conditions.
 - Provides examples and solutions for:
   - Thread-safe file writing using Java synchronization.

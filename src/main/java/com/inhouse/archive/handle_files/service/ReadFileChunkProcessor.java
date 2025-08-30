@@ -34,6 +34,7 @@ public class ReadFileChunkProcessor extends ReadFileAbstract {
         System.out.println(
             "Reading chunk: " + startByte + " to " + endByte + " from " + super.getFileName());
 
+        // TODO: some lines are split between chunks, need to handle that
         try (FileChannel fileChannel = FileChannel.open(Paths.get(super.getFilePath()), StandardOpenOption.READ)) {
             long chunkSize = endByte - startByte;
             if (chunkSize <= 0) {

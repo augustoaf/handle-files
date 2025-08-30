@@ -46,6 +46,7 @@ public class HandleFilesApplication {
 		ReadAndWriteService readAndWrite2 = new ReadAndWriteService(readInput1Dedicated, writeOutput, writeError);
 		Thread thread2 = new Thread(readAndWrite2,"Thread-2");
 		
+		// This thread is reading a different file
 		ReadFileProcessor readInput2 = fileProcessorFactory.getReadFileProcessor("input2.txt");
 		ReadAndWriteService readAndWrite3 = new ReadAndWriteService(readInput2, writeOutput, writeError);
 		Thread thread3 = new Thread(readAndWrite3,"Thread-3");

@@ -27,6 +27,7 @@ public class ReadAndWriteService implements Runnable {
 
         System.out.println("START PROCESSING FILE: " + readFileProcessor.getFileName() 
             + " : thread : " + Thread.currentThread().getName());
+            
         while (readFileProcessor.readNext(lineString)) {
             try {
 				writeFileProcessor.writeLine(lineString.getValue());
