@@ -70,7 +70,7 @@ public class HandleFilesChunksApplication {
             }
 
 			FileChunkDTO chunk = queue.take(); // This will block until an item is available (queue is RBlockingQueue)
-			System.out.println("Dequeued chunk for processing: " + chunk);
+			System.out.println("Dequeued chunk for processing: " + chunk.getFileName() + " from " + chunk.getStartByte() + " to " + chunk.getEndByte());
 			
 			ReadFileAbstract readInput = fileProcessorFactory.getReadFileChunkProcessor(
 				chunk.getFilePath(), chunk.getStartByte(), chunk.getEndByte());
