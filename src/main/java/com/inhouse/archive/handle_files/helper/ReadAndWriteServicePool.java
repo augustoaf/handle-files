@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.springframework.stereotype.Component;
 
+import com.inhouse.archive.handle_files.Config.MultiThreadConfig;
 import com.inhouse.archive.handle_files.service.ReadAndWriteService;
 import com.inhouse.archive.handle_files.service.ReadFileAbstract;
 import com.inhouse.archive.handle_files.service.WriteFileProcessor;
@@ -21,7 +22,7 @@ public class ReadAndWriteServicePool {
     private ConcurrentLinkedQueue<ReadAndWriteService> collection;
     private int maxPoolSize;
 
-    private ReadAndWriteServicePool(Config config) {
+    private ReadAndWriteServicePool(MultiThreadConfig config) {
     
         maxPoolSize = config.getMAX_REUSABLE_OBJECTS();
         collection = new ConcurrentLinkedQueue<>();

@@ -11,7 +11,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
-import com.inhouse.archive.handle_files.helper.Config;
+import com.inhouse.archive.handle_files.Config.MultiThreadConfig;
 import com.inhouse.archive.handle_files.helper.ReadAndWriteServicePool;
 import com.inhouse.archive.handle_files.service.FileProcessorFactory;
 import com.inhouse.archive.handle_files.service.ReadAndWriteService;
@@ -38,9 +38,11 @@ public class HandleFilesChunksApplication {
 		// run the Spring Boot application manually to get access to the Beans 
         ApplicationContext context = SpringApplication.run(HandleFilesChunksApplication.class, args);
 
-		Config config = context.getBean(Config.class);
-        QUEUE_NAME = config.getQUEUE_NAME();
-		MAX_THREADS = config.getMAX_THREADS();
+		// Read application.properties 
+        QUEUE_NAME = context.getEnvironment().getProperty("file.chunks.queue.name");
+		
+		MultiThreadConfig config = context.getBean(MultiThreadConfig.class);
+        MAX_THREADS = config.getMAX_THREADS();
 		MAX_TASKS_QUEUED = config.getMAX_TASKS_QUEUED();
 
         // Get the FileProcessorFactory bean and instantiate shared output and error file processors
@@ -65,8 +67,8 @@ public class HandleFilesChunksApplication {
 		// loop to consume from a Redis List (each item represents a file chunk)
 		while (true) {
 
-			System.out.println("!!! thread queue: " + threadPoolExecutor.getQueue().size());
-			System.out.println("!!! thread active count: " + threadPoolExecutor.getActiveCount());
+			System.out.println("INFO: thread queue: " + threadPoolExecutor.getQueue().size());
+			System.out.println("INFO: thread active count: " + threadPoolExecutor.getActiveCount());
 			
 			// Check the size of the thread pool executor queue in order to avoid overload
 			// the pool with many tasks waiting execution. If the queue is full, pause the Redis pull for a while.
@@ -81,6 +83,7 @@ public class HandleFilesChunksApplication {
 			FileChunkDTO chunk = queue.take(); // This will block until an item is available (queue is RBlockingQueue)
 			System.out.println("Dequeued chunk for processing: " + chunk.getFileName() + " from " + chunk.getStartByte() + " to " + chunk.getEndByte());
 			
+			//TODO create a pool to reuse instances for ReadFileAbstract as well 
 			ReadFileAbstract readInput = fileProcessorFactory.getReadFileChunkProcessor(
 				chunk.getFilePath(), chunk.getStartByte(), chunk.getEndByte());
 			ReadAndWriteService readAndWriteTask = servicesPool.getFromPool(readInput, writeOutput, writeError);

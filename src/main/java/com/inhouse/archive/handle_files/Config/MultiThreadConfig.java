@@ -1,26 +1,20 @@
-package com.inhouse.archive.handle_files.helper;
+package com.inhouse.archive.handle_files.Config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Config {
+public class MultiThreadConfig {
 
-    @Value("${file.chunks.queue.name}")
-    private String QUEUE_NAME;
     @Value("${max.threads}")
 	private int MAX_THREADS;
     @Value("${max.tasks.queued}")
 	private int MAX_TASKS_QUEUED;
 
-    public Config() {
+    public MultiThreadConfig() {
  
     }
         
-    public String getQUEUE_NAME() {
-		return QUEUE_NAME;
-	}
-
 	public int getMAX_THREADS() {
 		return MAX_THREADS;
 	}
