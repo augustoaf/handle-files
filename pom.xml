@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.inhouse.archive</groupId>
-	<artifactId>handle-files</artifactId>
+	<artifactId>handle_files</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>handle-files</name>
 	<description>Demo project for Spring Boot</description>

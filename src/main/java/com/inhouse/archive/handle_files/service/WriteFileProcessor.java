@@ -33,8 +33,8 @@ public class WriteFileProcessor {
 
     public void writeLine(String line) throws IOException {
         //writeLineWithDistributedLock(line);
-        writeLineWithThreadSafe(line);
-        //writeLineWithoutLock(line);
+        //writeLineWithThreadSafe(line);
+        writeLineWithoutLock(line);
     }
 
     public void writeLineWithoutLock(String line) throws IOException {
