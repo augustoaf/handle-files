@@ -31,6 +31,12 @@ public class ReadAndWriteService implements Runnable {
         this.writeFileError = writeFileError;
     }
 
+    public void releaseResources() {
+        this.readFileProcessor = null;
+        this.writeFileProcessor = null;
+        this.writeFileError = null;
+    }
+    
     @Override
     public void run() {
 		

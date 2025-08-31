@@ -5,6 +5,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.springframework.stereotype.Component;
 
 import com.inhouse.archive.handle_files.service.ReadAndWriteService;
+import com.inhouse.archive.handle_files.service.ReadFileAbstract;
+import com.inhouse.archive.handle_files.service.WriteFileProcessor;
 
 /*
  * This is a pool for the ReadAndWriteService instances in order to be reused in the thread pool executor.
@@ -32,6 +34,8 @@ public class ReadAndWriteServicePool {
        
         synchronized(ReadAndWriteServicePool.class) { 
        
+            service.releaseResources();
+            
             if (collection.size() >= maxPoolSize) {
                 System.out.println("!!!!!!! WARNING: Pool is full, cannot return the service instance.");//This is not expected, this instance will eventually be deleted by the java garbage collector.
                 return;
@@ -40,16 +44,23 @@ public class ReadAndWriteServicePool {
         }
     }
 
-    public ReadAndWriteService getFromPool() {
+    public ReadAndWriteService getFromPool(ReadFileAbstract readFileProcessor, 
+        WriteFileProcessor writeFileProcessor, WriteFileProcessor writeFileError) {
 
         synchronized(ReadAndWriteServicePool.class) { 
+
+            ReadAndWriteService service;
             if (collection.isEmpty()) {
                 System.out.println("!!!!!!! WARNING: Created a new ReadAndWriteService instance outside the pool.");	
-                return new ReadAndWriteService(this);
+                service = new ReadAndWriteService(this);
+            }
+            else {
+                //retrieve and remove from the pool 
+                service = collection.poll();
             }
             
-            //retrieve and remove from the pool 
-            return collection.poll();
+            service.setReadAndWrites(readFileProcessor, writeFileProcessor, writeFileError);
+            return service;
         }
     }   
 }

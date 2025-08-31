@@ -50,7 +50,6 @@ public class HandleFilesChunksApplication {
 		
         // Get the RedissonClient bean to interact with Redis
         RedissonClient redissonClient = context.getBean(RedissonClient.class);
-
 		RBlockingQueue<FileChunkDTO> queue = redissonClient.getBlockingQueue(QUEUE_NAME, new JsonJacksonCodec());
 		queue.clear();//for testing purpose to clear the queue on each run
         
@@ -63,7 +62,7 @@ public class HandleFilesChunksApplication {
 
 		System.out.println("##### STARTING CONSUMER LOOP ##### \n");
 		
-		// loop to consume from a Redis List - each item represents a file chunk
+		// loop to consume from a Redis List (each item represents a file chunk)
 		while (true) {
 
 			System.out.println("!!! thread queue: " + threadPoolExecutor.getQueue().size());
@@ -84,9 +83,7 @@ public class HandleFilesChunksApplication {
 			
 			ReadFileAbstract readInput = fileProcessorFactory.getReadFileChunkProcessor(
 				chunk.getFilePath(), chunk.getStartByte(), chunk.getEndByte());
-
-			ReadAndWriteService readAndWriteTask = servicesPool.getFromPool();
-			readAndWriteTask.setReadAndWrites(readInput, writeOutput, writeError);
+			ReadAndWriteService readAndWriteTask = servicesPool.getFromPool(readInput, writeOutput, writeError);
 			
 			threadPoolExecutor.submit(readAndWriteTask);
 		}
