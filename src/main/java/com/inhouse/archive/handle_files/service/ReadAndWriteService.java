@@ -3,6 +3,7 @@ package com.inhouse.archive.handle_files.service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+import com.inhouse.archive.handle_files.helper.ReadAndWriteServicePool;
 import com.inhouse.archive.handle_files.helper.StringWrapper;
 
 public class ReadAndWriteService implements Runnable {
@@ -10,8 +11,19 @@ public class ReadAndWriteService implements Runnable {
     private ReadFileAbstract readFileProcessor;
     private WriteFileProcessor writeFileProcessor;  
     private WriteFileProcessor writeFileError;
+    private ReadAndWriteServicePool readAndWriteServicePool;
+
+    public ReadAndWriteService(ReadAndWriteServicePool readAndWriteServicePool) {
+        this.readAndWriteServicePool = readAndWriteServicePool;
+    }
 
     public ReadAndWriteService(ReadFileAbstract readFileProcessor, 
+        WriteFileProcessor writeFileProcessor, WriteFileProcessor writeFileError) {
+
+        this.setReadAndWrites(readFileProcessor, writeFileProcessor, writeFileError);
+    }
+
+    public void setReadAndWrites(ReadFileAbstract readFileProcessor, 
         WriteFileProcessor writeFileProcessor, WriteFileProcessor writeFileError) {
 
         this.readFileProcessor = readFileProcessor;
@@ -44,5 +56,8 @@ public class ReadAndWriteService implements Runnable {
 		System.out.println("FINISHING PROCESSING FILE: " + readFileProcessor.getFileName() 
             + " : thread : " + Thread.currentThread().getName() 
             + " : duration : " + java.time.Duration.between(startTime, LocalDateTime.now()).toSeconds() + " seconds");	
+
+        // return this instance to the pool to be reused
+        readAndWriteServicePool.returnToPool(this);
     }
 }
